@@ -76,9 +76,7 @@ class DataPreprocessing:
                 include=["number"]
             ).columns.tolist()
 
-            # Detect categorical columns.
-            # Including "str" avoids the Pandas warning
-            # about future string dtype behavior.
+            # Detect categorical columns
             categorical_columns = X.select_dtypes(
                 include=["object", "category", "str"]
             ).columns.tolist()
