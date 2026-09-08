@@ -1,517 +1,605 @@
+Absolutely. Here is the **whole `README.md` in one single block**. Copy everything inside this one block into your `README.md`.
+
+```text
 # Customer Churn Prediction — MLOps
 
-An end-to-end machine learning project that predicts whether a telecom customer is likely to churn. The project follows an MLOps-oriented structure with data processing, feature engineering, model training, evaluation, prediction API, monitoring, drift detection, benchmarking, retraining, and automated testing.
+## Overview
 
-## Project Overview
+This project is an end-to-end MLOps implementation for predicting customer churn using machine learning.
 
-Customer churn is an important business problem for telecom companies. Identifying customers who are likely to leave can help businesses take proactive retention actions.
+The project covers the complete machine learning lifecycle:
 
-This project uses the Telco Customer Churn dataset to:
+- Data preprocessing
+- Feature engineering
+- Model training
+- Model evaluation
+- Data drift monitoring
+- Prediction benchmarking
+- Model retraining
+- REST API deployment using FastAPI
+- Docker containerization
+- Automated testing
+- GitHub Actions CI
 
-* Prepare and preprocess customer data
-* Create additional customer-level features
-* Train multiple machine learning models
-* Select the best-performing model
-* Save the trained model and preprocessing pipeline
-* Provide predictions through an API
-* Monitor model/data behavior
-* Detect data drift
-* Support model retraining
-* Validate the complete project using automated tests
+The goal is to build a reliable and reusable machine learning pipeline rather than only training a model.
 
 ## MLOps Workflow
 
-```text
-Raw Data
-   │
-   ▼
-Data Ingestion
-   │
-   ▼
-Data Preprocessing
-   │
-   ▼
-Feature Engineering
-   │
-   ▼
-Train / Test Split
-   │
-   ▼
-Preprocessing Pipeline
-   │
-   ├───────────────┐
-   ▼               ▼
-Logistic        Random Forest
-Regression      + Grid Search
-   │               │
-   └───────┬───────┘
-           ▼
-      Model Selection
-           │
-           ▼
-      Model Evaluation
-           │
-           ▼
-     Saved Model + Preprocessor
-           │
-           ▼
-       Prediction API
-           │
-           ▼
- Monitoring / Drift Detection
-           │
-           ▼
-        Retraining
-```
+The project follows this workflow:
+
+1. Load customer churn data
+2. Clean and preprocess the data
+3. Create additional features
+4. Train machine learning models
+5. Select the best-performing model
+6. Evaluate the model
+7. Save the trained model and preprocessing pipeline
+8. Monitor data drift
+9. Benchmark prediction latency
+10. Expose predictions through a FastAPI REST API
+11. Run automated tests
+12. Build and run the application using Docker
+13. Run tests automatically using GitHub Actions
+14. Retrain the model when required
 
 ## Project Structure
 
-```text
 customer-churn-mlops/
 │
+├── .github/
+│   └── workflows/
+│       └── main.yml
+│
 ├── artifacts/
-│   ├── logs/
 │   ├── models/
-│   │   ├── preprocessor.pkl
-│   │   └── telco_churn_model.pkl
+│   ├── preprocessor/
 │   └── reports/
-│       ├── benchmark_report.json
-│       ├── evaluation_report.json
-│       └── monitoring_report.json
 │
 ├── configs/
 │   └── config.yaml
 │
 ├── data/
-│   ├── raw/
-│   │   └── Telco-Customer-Churn.csv
-│   ├── processed/
-│   │   └── processed_telco.csv
-│   └── recent_batch/
-│       └── recent_batch.csv
+│   └── raw/
+│       └── Telco-Customer-Churn.csv
 │
-├── docs/
-│
-├── notebooks/
-│   └── 01_data_exploration.ipynb
+├── logs/
 │
 ├── src/
 │   ├── feature_engineering/
-│   ├── ingestion/
+│   │   └── feature_engineering.py
+│   │
 │   ├── monitoring/
-│   ├── pipeline/
+│   │   ├── benchmark.py
+│   │   ├── drift_monitor.py
+│   │   └── monitor.py
+│   │
 │   ├── preprocessing/
+│   │   └── data_preprocessing.py
+│   │
+│   ├── retraining/
+│   │   └── retrain.py
+│   │
 │   ├── serving/
+│   │   └── predict.py
+│   │
 │   ├── training/
+│   │   ├── evaluation.py
+│   │   └── train.py
+│   │
 │   └── utils/
+│       ├── common.py
+│       ├── exception.py
+│       └── logger.py
 │
 ├── tests/
 │   ├── test_api.py
-│   ├── test_benchmark.py
+│   ├── test_data_preprocessing.py
 │   ├── test_drift.py
-│   ├── test_monitor.py
-│   ├── test_prediction.py
-│   ├── test_preprocessing.py
-│   ├── test_retrain.py
-│   └── test_training.py
+│   ├── test_feature_engineering.py
+│   └── test_prediction.py
 │
+├── .dockerignore
+├── .gitignore
 ├── app.py
-├── main.py
 ├── Dockerfile
+├── main.py
 ├── pytest.ini
 ├── requirements.txt
-├── .gitignore
 └── README.md
-```
 
 ## Dataset
 
-The project uses the **Telco Customer Churn** dataset.
+The project uses the Telco Customer Churn dataset.
+
+The dataset contains customer information such as:
+
+- Gender
+- Senior Citizen
+- Partner
+- Dependents
+- Tenure
+- Phone Service
+- Multiple Lines
+- Internet Service
+- Online Security
+- Online Backup
+- Device Protection
+- Tech Support
+- Streaming TV
+- Streaming Movies
+- Contract
+- Paperless Billing
+- Payment Method
+- Monthly Charges
+- Total Charges
+- Churn
 
 The target variable is:
 
-```text
 Churn
-```
 
-Target mapping:
+The target values are converted as follows:
 
-```text
-No  → 0
-Yes → 1
-```
+- No = 0
+- Yes = 1
 
-The project removes `customerID` from the model features.
+The customerID column is removed because it is an identifier and is not useful for prediction.
 
 ## Feature Engineering
 
-Two additional features are created:
+Additional features are created to improve the model.
 
 ### MonthlyChargesPerTenure
 
-```text
-MonthlyCharges / (tenure + 1)
-```
-
-This provides an additional relationship between monthly charges and customer tenure.
+This feature represents the relationship between monthly charges and customer tenure.
 
 ### IsLongTermCustomer
 
-```text
-1 if tenure >= 24
-0 otherwise
-```
+This feature identifies customers who have stayed with the company for a longer period.
 
-This identifies customers who have been with the company for at least 24 months.
+Feature engineering is implemented in:
 
-## Preprocessing
+src/feature_engineering/feature_engineering.py
 
-The preprocessing pipeline automatically identifies numerical and categorical columns.
+## Data Preprocessing
+
+The preprocessing pipeline handles numerical and categorical features separately.
 
 ### Numerical Features
 
-The numerical pipeline uses:
+Numerical features use:
 
-* Median imputation
-* Standard scaling
+- Median imputation
+- StandardScaler
 
 ### Categorical Features
 
-The categorical pipeline uses:
+Categorical features use:
 
-* Most-frequent imputation
-* One-hot encoding
-* `handle_unknown="ignore"`
+- Most frequent value imputation
+- OneHotEncoder
+- handle_unknown="ignore"
 
-The fitted preprocessing pipeline is saved as:
+The preprocessing pipeline is saved as an artifact so that the same preprocessing can be reused during prediction.
 
-```text
-artifacts/models/preprocessor.pkl
-```
+Preprocessing is implemented in:
 
-This same saved preprocessing logic is used during prediction.
+src/preprocessing/data_preprocessing.py
 
 ## Model Training
 
-The project trains two models:
+Two machine learning algorithms are evaluated:
 
-### Logistic Regression
+- Logistic Regression
+- Random Forest
 
-Used as the baseline model.
+Hyperparameter tuning is performed using GridSearchCV.
 
-```text
-max_iter = 1000
-```
+The model selection process uses 5-fold cross-validation with F1 Macro as the scoring metric.
 
-### Random Forest
+The best-performing model is saved as an artifact.
 
-A Random Forest model is tuned using `GridSearchCV`.
+The current selected model is:
 
-The search includes:
+Logistic Regression
 
-```text
-n_estimators:
-    100
-    200
+Training is implemented in:
 
-max_depth:
-    5
-    10
-    None
-
-min_samples_split:
-    2
-    5
-```
-
-The project uses:
-
-```text
-Cross-validation: 5 folds
-Scoring: f1_macro
-```
-
-The model with the better test score is selected as the final model.
+src/training/train.py
 
 ## Model Evaluation
 
+The trained model is evaluated using:
+
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- ROC AUC
+- Confusion Matrix
+
 Current evaluation results:
 
-| Metric    |  Score |
-| --------- | -----: |
-| Accuracy  | 0.8084 |
-| Precision | 0.6818 |
-| Recall    | 0.5214 |
-| F1 Score  | 0.5909 |
-| ROC AUC   | 0.7167 |
+Accuracy: 0.8062
 
-The current training run selected **Logistic Regression** as the final model.
+Precision: 0.6712
 
-The trained model is saved to:
+Recall: 0.5294
 
-```text
-artifacts/models/telco_churn_model.pkl
-```
+F1 Score: 0.5919
 
-The evaluation report is saved to:
+ROC AUC: 0.7178
 
-```text
-artifacts/reports/evaluation_report.json
-```
+Confusion Matrix:
+
+[[938, 97],
+ [176, 198]]
+
+The evaluation report is generated by:
+
+src/training/evaluation.py
 
 ## Prediction API
 
-The project provides a prediction API using FastAPI.
+The project provides a REST API using FastAPI.
 
-Start the application with:
+The API loads:
 
-```powershell
-python app.py
-```
+- The trained model
+- The saved preprocessing pipeline
 
-The API is configured to run on:
+The prediction pipeline processes the incoming customer data and returns the churn prediction and probabilities.
 
-```text
-127.0.0.1:8000
-```
-
-The prediction response contains:
-
-```text
-prediction
-churn_probability
-no_churn_probability
-```
-
-Example response:
-
-```json
-{
-    "prediction": 1,
-    "churn_probability": 0.72,
-    "no_churn_probability": 0.28
-}
-```
-
-## Monitoring
-
-The project includes monitoring components for:
-
-* Model performance
-* Data quality
-* Data drift
-* Benchmarking
-* Retraining
-
-Monitoring reports are stored under:
-
-```text
-artifacts/reports/
-```
-
-## Data Drift Detection
-
-The project includes a drift detection module.
-
-The configured monitoring feature is:
-
-```text
-MonthlyCharges
-```
-
-The configured drift threshold is:
-
-```text
-10
-```
-
-The drift monitoring results can be used to determine whether incoming customer data has changed significantly from the expected data distribution.
-
-## Retraining
-
-The project includes a retraining module that can be used when monitoring indicates that the model should be updated.
-
-The retraining workflow can regenerate:
-
-```text
-preprocessor.pkl
-telco_churn_model.pkl
-evaluation_report.json
-```
-
-## Configuration
-
-Project settings are maintained in:
-
-```text
-configs/config.yaml
-```
-
-This includes:
-
-* Project information
-* Dataset paths
-* Model paths
-* Test split
-* Random state
-* Grid-search settings
-* Monitoring thresholds
-* API settings
-* Drift settings
-
-Keeping these values in configuration makes the project easier to maintain and modify.
-
-## Installation
-
-### 1. Clone or copy the project
-
-Open the project directory:
-
-```powershell
-cd customer-churn-mlops
-```
-
-### 2. Create virtual environment
-
-```powershell
-python -m venv venv
-```
-
-### 3. Activate the environment
-
-Windows PowerShell:
-
-```powershell
-.\venv\Scripts\Activate.ps1
-```
-
-### 4. Install dependencies
-
-```powershell
-pip install -r requirements.txt
-```
-
-## Run the Training Pipeline
+### Start the API
 
 Run:
 
-```powershell
+uvicorn app:app --reload
+
+The API will be available at:
+
+http://127.0.0.1:8000
+
+### Swagger Documentation
+
+FastAPI automatically provides interactive API documentation at:
+
+http://127.0.0.1:8000/docs
+
+### Prediction Endpoint
+
+POST /predict
+
+The API accepts customer information and returns:
+
+- prediction
+- churn_probability
+- no_churn_probability
+- model_version
+
+Example response:
+
+{
+    "prediction": 1,
+    "churn_probability": 0.72,
+    "no_churn_probability": 0.28,
+    "model_version": "1.0.0"
+}
+
+The prediction pipeline is implemented in:
+
+src/serving/predict.py
+
+The FastAPI application is implemented in:
+
+app.py
+
+## Monitoring
+
+The project includes monitoring capabilities for production-style machine learning operations.
+
+Monitoring includes:
+
+- Prediction monitoring
+- Data drift monitoring
+- Prediction latency benchmarking
+
+## Data Drift Monitoring
+
+Data drift monitoring checks whether recent customer data is significantly different from the training data.
+
+The current drift monitoring implementation uses:
+
+MonthlyCharges
+
+A threshold of:
+
+10
+
+is used to determine whether the difference is significant.
+
+Example successful result:
+
+Training mean: 64.76
+
+Recent mean: 66.33
+
+Training std: 30.09
+
+Recent std: 31.22
+
+Mean diff: 1.57
+
+Std diff: 1.13
+
+Threshold: 10
+
+Status: No Drift
+
+Drift monitoring is implemented in:
+
+src/monitoring/drift_monitor.py
+
+## Prediction Monitoring
+
+The API records prediction results through the monitoring component.
+
+This allows prediction activity to be monitored over time.
+
+Prediction monitoring is implemented in:
+
+src/monitoring/monitor.py
+
+## Prediction Benchmarking
+
+Prediction latency is measured to understand how quickly the model produces predictions.
+
+The benchmark measures prediction execution time and reports the average latency in milliseconds.
+
+The local benchmark was approximately:
+
+5.8 ms
+
+The Docker benchmark was approximately:
+
+6.4 ms
+
+Benchmarking is implemented in:
+
+src/monitoring/benchmark.py
+
+## Model Retraining
+
+The project contains a retraining workflow that can be used when the model needs to be updated.
+
+Retraining can be triggered when:
+
+- New data becomes available
+- Data distribution changes
+- Model performance decreases
+- Business requirements change
+
+The retraining workflow reuses the existing preprocessing and training components.
+
+Retraining is implemented in:
+
+src/retraining/retrain.py
+
+## Configuration
+
+Project configuration is maintained in:
+
+configs/config.yaml
+
+The configuration contains settings such as:
+
+- Dataset path
+- Target column
+- Model artifact path
+- Preprocessor artifact path
+- Report paths
+- Monitoring settings
+
+Keeping configuration separate from the Python code makes the project easier to maintain.
+
+## Installation
+
+Clone the repository:
+
+git clone https://github.com/shaikmubina1224-dotcom/customer-churn-mlops.git
+
+Move into the project directory:
+
+cd customer-churn-mlops
+
+Create a virtual environment:
+
+python -m venv venv
+
+Activate the virtual environment on Windows:
+
+venv\Scripts\activate
+
+Install the required dependencies:
+
+pip install -r requirements.txt
+
+## Run the MLOps Pipeline
+
+The complete MLOps pipeline can be executed using:
+
 python main.py
-```
 
-The training pipeline will:
+The pipeline performs:
 
-1. Load the processed dataset
-2. Apply feature engineering
-3. Split features and target
-4. Create the train/test split
-5. Build the preprocessing pipeline
-6. Train Logistic Regression
-7. Train and tune Random Forest
-8. Select the best model
-9. Save the model
-10. Generate the evaluation report
+1. Model training
+2. Model evaluation
+3. Data drift monitoring
+4. Prediction benchmarking
+
+At the end, a summary is displayed with:
+
+- Model accuracy
+- Data drift status
+- Average prediction latency
 
 ## Run Tests
 
-Run the complete test suite:
+The project uses pytest for automated testing.
 
-```powershell
-python -m pytest
-```
+Run:
 
-Current test status:
+python -m pytest -q
 
-```text
+Current test result:
+
 9 passed
-```
 
-The test suite covers:
+The tests cover areas including:
 
-* API
-* Prediction
-* Benchmarking
-* Drift detection
-* Monitoring
-* Preprocessing
-* Retraining
-* Training
+- Data preprocessing
+- Feature engineering
+- Model prediction
+- API functionality
+- Data drift monitoring
 
 ## Docker
 
-The project includes a `Dockerfile` for containerization.
+The application can be containerized using Docker.
 
-Build the image:
+### Build the Docker Image
 
-```powershell
-docker build -t customer-churn-mlops .
-```
+Run:
 
-Run the container:
+docker build -t customer-churn-api .
 
-```powershell
-docker run -p 8000:8000 customer-churn-mlops
-```
+### Run the Docker Container
+
+Run:
+
+docker run -p 8000:8000 customer-churn-api
+
+The API will then be available at:
+
+http://127.0.0.1:8000
+
+Swagger documentation:
+
+http://127.0.0.1:8000/docs
+
+## GitHub Actions CI
+
+GitHub Actions is used for Continuous Integration.
+
+The workflow is located at:
+
+.github/workflows/main.yml
+
+The CI pipeline:
+
+1. Checks out the repository
+2. Sets up Python 3.11
+3. Installs dependencies
+4. Runs pytest
+
+The workflow runs automatically when code is:
+
+- Pushed to the main branch
+- Submitted through a pull request to the main branch
+
+The current GitHub Actions test workflow is passing successfully.
 
 ## Technology Stack
 
-* Python
-* Pandas
-* NumPy
-* Scikit-learn
-* PyYAML
-* Joblib
-* FastAPI
-* Uvicorn
-* Pytest
-* Docker
+Python
+
+Pandas
+
+NumPy
+
+Scikit-learn
+
+FastAPI
+
+Pydantic
+
+Uvicorn
+
+Pytest
+
+HTTPX
+
+Docker
+
+Git
+
+GitHub
+
+GitHub Actions
 
 ## Key MLOps Practices
 
-This project demonstrates several practical MLOps concepts:
+This project demonstrates several important MLOps practices:
 
-* Configuration-driven pipelines
-* Reusable preprocessing
-* Feature engineering
-* Model comparison
-* Hyperparameter tuning
-* Model artifact management
-* API-based inference
-* Automated testing
-* Data drift monitoring
-* Model monitoring
-* Retraining workflow
-* Containerization
+- Reusable preprocessing pipeline
+- Feature engineering
+- Model training
+- Hyperparameter tuning
+- Model evaluation
+- Model artifact management
+- Data drift monitoring
+- Prediction monitoring
+- Prediction latency benchmarking
+- Model retraining
+- REST API deployment
+- Docker containerization
+- Automated testing
+- Continuous Integration using GitHub Actions
+- Configuration management
+- Logging
+- Custom exception handling
 
 ## Future Improvements
 
 Possible future improvements include:
 
-* CI/CD integration
-* Experiment tracking with MLflow
-* Model registry
-* Cloud deployment
-* Automated scheduled retraining
-* Advanced data validation
-* Production database integration
-* API authentication
-* Model explainability
-* Improved recall for churn detection
-* Production monitoring dashboards
+- MLflow experiment tracking
+- Model registry
+- Cloud deployment
+- Scheduled model retraining
+- Automated data validation
+- Database integration
+- API authentication
+- Model explainability
+- Improved churn recall
+- Monitoring dashboards
+- Automated Continuous Deployment
+- Production alerting
+- Feature store integration
 
 ## Project Status
 
-**Status: Working**
+The project currently includes:
 
-The current automated test suite passes successfully:
+- End-to-end machine learning pipeline
+- Model training
+- Model evaluation
+- Feature engineering
+- Data preprocessing
+- Data drift monitoring
+- Prediction monitoring
+- Prediction benchmarking
+- Model retraining
+- FastAPI prediction API
+- Docker deployment
+- Automated tests
+- GitHub Actions CI
 
-```text
-9 passed
-```
+The project is ready for further improvement toward a production-grade MLOps system.
 
-The current model baseline achieves:
+## Author
 
-```text
-Accuracy: 80.84%
-ROC AUC: 71.67%
+Shaik Mubina
+
+Customer Churn Prediction — MLOps Project
 ```
