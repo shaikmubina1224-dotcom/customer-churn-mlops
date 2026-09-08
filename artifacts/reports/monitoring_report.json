@@ -1,0 +1,8 @@
+{
+    "total_predictions": 35,
+    "churn_predictions": 32,
+    "no_churn_predictions": 3,
+    "last_prediction_time": "2026-09-08 14:15:49",
+    "churn_percentage": 91.43,
+    "no_churn_percentage": 8.57
+}

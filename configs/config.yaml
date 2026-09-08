@@ -1,0 +1,68 @@
+# ================================
+# Project Information
+# ================================
+project:
+  name: "Customer Churn Prediction"
+  version: "1.0.0"
+  author: "Mubina Shaik"
+
+# ================================
+# Paths
+# ================================
+paths:
+  raw_data: "data/raw/Telco-Customer-Churn.csv"
+  processed_data: "data/processed/processed_telco.csv"
+  recent_batch: "data/recent_batch/recent_batch.csv"
+
+  model_path: "artifacts/models/telco_churn_model.pkl"
+  preprocessor_path: "artifacts/models/preprocessor.pkl"
+
+  report_path: "artifacts/reports/evaluation_report.json"
+  monitoring_report: "artifacts/reports/monitoring_report.json"
+  benchmark_report: "artifacts/reports/benchmark_report.json"
+
+  log_path: "artifacts/logs/project.log"
+
+# ================================
+# Data Settings
+# ================================
+data:
+  target_column: "Churn"
+  test_size: 0.20
+  random_state: 42
+
+# ================================
+# Model Settings
+# ================================
+model:
+  baseline_model: "LogisticRegression"
+  candidate_model: "RandomForestClassifier"
+
+# ================================
+# Hyperparameter Tuning
+# ================================
+grid_search:
+  cv: 5
+  scoring: "f1_macro"
+  n_jobs: -1
+
+# ================================
+# Monitoring
+# ================================
+monitoring:
+  drift_threshold: 0.10
+  missing_threshold: 0.05
+
+# ================================
+# API
+# ================================
+api:
+  host: "127.0.0.1"
+  port: 8000
+
+# ================================
+# Drift Detection
+# ================================
+drift:
+  feature: "MonthlyCharges"
+  threshold: 10

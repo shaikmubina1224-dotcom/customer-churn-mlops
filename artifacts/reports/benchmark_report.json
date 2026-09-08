@@ -1,0 +1,10 @@
+{
+    "prediction_time_seconds": 0.005808,
+    "prediction_time_milliseconds": 5.808,
+    "benchmark_runs": 10,
+    "average_prediction_time_seconds": 0.005808,
+    "average_prediction_time_milliseconds": 5.808,
+    "minimum_prediction_time_milliseconds": 5.341,
+    "maximum_prediction_time_milliseconds": 6.33,
+    "status": "Success"
+}
